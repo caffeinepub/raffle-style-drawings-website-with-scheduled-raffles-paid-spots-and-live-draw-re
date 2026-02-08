@@ -1,0 +1,157 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T02:41:53.345Z",
+  "summary": "The diff adds a Motoko backend actor with raffle/entry types, admin authorization hooks, and Stripe session helpers, plus a set of frontend components/hooks for login, admin guarding/config, raffle cards, countdown, purchase panel, and audit display. However, several BuildRequest requirements are either not evidenced in the provided diff summary or are contradicted by the implemented purchase flow (which records entries before Stripe payment confirmation).",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Public raffle browsing segmented by status (upcoming/active/completed) with required fields and explicit weekday/weekend configuration constraints.",
+      "reason": "The diff shows a RaffleCard component that displays required fields, but there is no evidenced page/view that segments raffles by status, nor any enforcement/UI indication of weekday vs weekend constraints ($10 spots, pot ranges, weekend up to 200 spots/$500). Router/pages are not shown in the provided summary.",
+      "evidence": [
+        "frontend/src/components/raffles/RaffleCard.tsx",
+        "frontend/src/App.tsx"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "A signed-in user area listing the user's purchased entries per raffle with outcome for completed raffles.",
+      "reason": "A hook exists to fetch 'my entries', and the header links to /my-entries, but no actual 'My Entries' page/UI implementation is evidenced in the diff summary.",
+      "evidence": [
+        "frontend/src/hooks/entries/useMyEntries.ts",
+        "frontend/src/components/layout/SiteHeader.tsx"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Backend persistence across canister upgrades using stable storage patterns; expose complete raffle/entry/result APIs (list raffles, details, admin create/update, record entries, fetch results).",
+      "reason": "backend/main.mo is truncated and only shows in-memory Maps and vars; no stable storage (stable vars / preupgrade/postupgrade) is evidenced in the visible portion. Also the full set of required methods is not confirmed from the truncated snippet.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Only count spots as purchased after Stripe payment is confirmed/validated; success/failure return states; prevent overselling.",
+      "reason": "The frontend creates a Stripe Checkout session and then immediately calls actor.purchaseEntries(...) before redirecting to Stripe, which contradicts the requirement to only record/increment after payment confirmation. No confirmation/validation step is evidenced before recording the entry.",
+      "evidence": [
+        "frontend/src/hooks/payments/useCreateCheckoutSession.ts"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Admin dashboard (admin-only) to create/manage raffles, open/close, and trigger draw exactly once; prevent redraw; publish winner/draw timestamp publicly.",
+      "reason": "Admin guard and admin hooks/form components exist, but no admin dashboard page/route or UI to open/close and trigger draw is evidenced in the diff summary (router/pages omitted). Backend draw-once enforcement is not verifiable from the truncated backend snippet.",
+      "evidence": [
+        "frontend/src/components/admin/AdminGuard.tsx",
+        "frontend/src/components/admin/RaffleForm.tsx",
+        "frontend/src/hooks/admin/useAdminRaffles.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Live Drawing page per raffle with countdown, optional live video embed URL configurable by admin, and winner display after refresh once drawn.",
+      "reason": "A CountdownTimer component exists and the admin form includes a videoUrl field, but no dedicated Live Drawing page/section (including video embed rendering) is evidenced in the diff summary.",
+      "evidence": [
+        "frontend/src/components/raffles/CountdownTimer.tsx",
+        "frontend/src/components/admin/RaffleForm.tsx"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Completed raffle audit info: spots sold, participant count, draw timestamp, and draw reference ID; winner consistent across raffle detail and 'My entries'.",
+      "reason": "RaffleAuditPanel supports displaying these fields, but there is no evidence that the backend exposes participant count/spots sold computations, nor that completed raffle detail pages wire this panel consistently with 'My entries'.",
+      "evidence": [
+        "frontend/src/components/raffles/RaffleAuditPanel.tsx",
+        "frontend/src/hooks/entries/useMyEntries.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "requirement": "Cohesive raffle-style theme applied consistently across list/detail/admin/live pages; avoid a blue/purple primary palette; responsive.",
+      "reason": "ThemeProvider is set to dark and some components use 'primary' classes, but there is no evidenced theme configuration (e.g., Tailwind/Shadcn theme tokens) or confirmation that the primary palette avoids blue/purple across the app.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/raffles/CountdownTimer.tsx",
+        "frontend/src/components/layout/SiteHeader.tsx"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "requirement": "Add required generated static images under frontend/public/assets/generated and use logo in header and hero/banner on landing page.",
+      "reason": "The header references the logo path, but the diff summary does not show the actual image files being added under frontend/public/assets/generated, nor any hero/banner usage on the landing page.",
+      "evidence": [
+        "frontend/src/components/layout/SiteHeader.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "User profile creation/setup dialog and name-based profile display for winners.",
+      "reason": "BuildRequest REQ-2 asks for a simple user area to see purchased entries/outcomes but does not request a user profile system requiring users to enter a name.",
+      "evidence": [
+        "frontend/src/components/auth/ProfileSetupDialog.tsx",
+        "frontend/src/hooks/auth/useUserProfile.ts",
+        "backend/main.mo",
+        "frontend/src/components/raffles/RaffleAuditPanel.tsx"
+      ]
+    },
+    {
+      "description": "Admin UI to store/configure Stripe secret key via the application.",
+      "reason": "REQ-4 requires Stripe Checkout integration, but does not specifically request an in-app secret key configuration screen; this is additional functionality beyond stated requirements.",
+      "evidence": [
+        "frontend/src/components/admin/StripePaymentSetup.tsx",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/components/admin/AdminGuard.tsx",
+    "frontend/src/components/admin/RaffleForm.tsx",
+    "frontend/src/components/admin/StripePaymentSetup.tsx",
+    "frontend/src/components/auth/LoginButton.tsx",
+    "frontend/src/components/auth/ProfileSetupDialog.tsx",
+    "frontend/src/components/auth/RequireAuth.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/SiteFooter.tsx",
+    "frontend/src/components/layout/SiteHeader.tsx",
+    "frontend/src/components/raffles/CountdownTimer.tsx",
+    "frontend/src/components/raffles/PurchaseSpotsPanel.tsx",
+    "frontend/src/components/raffles/RaffleAuditPanel.tsx",
+    "frontend/src/components/raffles/RaffleCard.tsx",
+    "frontend/src/hooks/admin/useAdminRaffles.ts",
+    "frontend/src/hooks/auth/useUserProfile.ts",
+    "frontend/src/hooks/entries/useMyEntries.ts",
+    "frontend/src/hooks/payments/useCreateCheckoutSession.ts",
+    "frontend/src/hooks/payments/useStripeConfig.ts",
+    "frontend/src/hooks/raffles/useCompletedRaffles.ts",
+    "frontend/src/hooks/raffles/useLiveRaffle.ts",
+    "frontend/src/hooks/raffles/useRaffles.ts",
+    "frontend/src/hooks/raffles/useRemainingSpots.ts",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/LiveDrawingPage.tsx",
+    "frontend/src/pages/MyEntriesPage.tsx",
+    "frontend/src/pages/PaymentFailurePage.tsx",
+    "frontend/src/pages/PaymentSuccessPage.tsx",
+    "frontend/src/pages/RaffleDetailPage.tsx",
+    "frontend/src/pages/RafflesPage.tsx",
+    "frontend/src/pages/admin/AdminDashboardPage.tsx",
+    "frontend/src/pages/admin/RaffleManagementPage.tsx",
+    "frontend/src/router.tsx",
+    "frontend/src/utils/urlParams.ts",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}

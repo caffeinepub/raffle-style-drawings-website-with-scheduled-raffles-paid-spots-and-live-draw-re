@@ -1,0 +1,351 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Raffle drawings frontend (public raffles, II auth, Stripe checkout, admin, live draw, theme + assets)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Public raffle browsing experience showing upcoming/active/completed raffles with key metadata and clear status.",
+      "acceptanceCriteria": [
+        "Users can browse a list of raffles segmented by status (upcoming/active/completed).",
+        "Each raffle shows: spot price, total spots, spots remaining, pot/prize amount, schedule (date/time), and a clear status label.",
+        "Weekday raffle configuration supports $10/spot and pot/prize amounts between $100 and $500.",
+        "Weekend raffle configuration supports up to 200 spots and $500 pot."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "create",
+          "description": "Create the app shell that hosts routing, global layout, and top-level navigation for public raffle browsing (list + detail)."
+        },
+        {
+          "path": "frontend/src/router.tsx",
+          "operation": "create",
+          "description": "Add @tanstack/react-router route tree for required pages: main raffle list (landing), raffle detail, live drawing, my entries, admin area, and payment success/failure; ensure pages are navigable (no orphan views)."
+        },
+        {
+          "path": "frontend/src/pages/RafflesPage.tsx",
+          "operation": "create",
+          "description": "Implement the main landing page that segments raffles by status (upcoming/open/drawn/closed mapped to upcoming/active/completed) and renders raffle cards with spot price, total spots, remaining spots, schedule, pot/prize, and status label."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "create",
+          "description": "Implement raffle detail view that shows full raffle info, status, remaining spots (via backend capability), and links to Live Drawing; includes completed winner/audit section wiring (see REQ-7)."
+        },
+        {
+          "path": "frontend/src/components/raffles/RaffleCard.tsx",
+          "operation": "create",
+          "description": "Create a reusable raffle summary card used by lists to display spot price, total/remaining, pot/prize, schedule, and status label."
+        },
+        {
+          "path": "frontend/src/hooks/raffles/useRaffles.ts",
+          "operation": "create",
+          "description": "Add React Query hooks for fetching raffles lists (all/active/completed) from backend capabilities and for normalizing status segmentation for the UI."
+        },
+        {
+          "path": "frontend/src/hooks/raffles/useRemainingSpots.ts",
+          "operation": "create",
+          "description": "Add a React Query hook to fetch remaining spots for a raffle (used in list cards and detail page) and to keep purchase quantity constrained."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Internet Identity sign-in/out and a user area to view purchased entries and outcomes; prompt sign-in before purchase.",
+      "acceptanceCriteria": [
+        "Users can sign in and sign out using Internet Identity.",
+        "Signed-in users can view a list of their entries (raffle, quantity of spots, timestamp, status).",
+        "If not signed in, entry purchase actions prompt sign-in."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/LoginButton.tsx",
+          "operation": "create",
+          "description": "Implement a Login/Logout button using the existing useInternetIdentity hook; clear React Query cache on logout as recommended by the authorization component. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/auth/useUserProfile.ts",
+          "operation": "create",
+          "description": "Create React Query hooks to call authorization-related backend capabilities (getCallerUserProfile/saveCallerUserProfile/getUserProfile) and avoid profile-setup modal flash per authorization component guidance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/auth/ProfileSetupDialog.tsx",
+          "operation": "create",
+          "description": "Add a first-login profile setup dialog to collect a display name when getCallerUserProfile() returns null; uses saveCallerUserProfile(). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/MyEntriesPage.tsx",
+          "operation": "create",
+          "description": "Create a signed-in user page that lists the caller’s entries per raffle (quantity, timestamp, paid status), and shows outcome for completed raffles by cross-referencing raffle winner/result info."
+        },
+        {
+          "path": "frontend/src/hooks/entries/useMyEntries.ts",
+          "operation": "create",
+          "description": "Add hooks to gather the current user’s entries by combining raffles list + per-raffle entries reads (only when authenticated) and shaping the data for My Entries UI."
+        },
+        {
+          "path": "frontend/src/components/auth/RequireAuth.tsx",
+          "operation": "create",
+          "description": "Add a small wrapper component to gate user-only UI actions (like purchasing) and prompt login when not authenticated; uses useInternetIdentity."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "modify",
+          "description": "Wire authenticated purchase CTA to RequireAuth so unauthenticated users are prompted to sign in before starting checkout/purchase flow."
+        },
+        {
+          "path": "frontend/src/router.tsx",
+          "operation": "modify",
+          "description": "Register the My Entries route and ensure navigation to it is available when signed in."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Stripe Checkout purchase flow for raffle spots with explicit pricing, quantity limits, and success/failure return states.",
+      "acceptanceCriteria": [
+        "Users can select a quantity of spots to buy for an active raffle, up to the remaining spots.",
+        "Checkout flow completes via Stripe and returns the user to the raffle detail page with a clear success/failure state.",
+        "Backend only increments sold spots / records entries when the payment confirmation is received/validated.",
+        "If a raffle sells out, purchasing is disabled and the UI shows “Sold out.”"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/payments/useCreateCheckoutSession.ts",
+          "operation": "create",
+          "description": "Implement a Stripe checkout session mutation that calls createCheckoutSession(items, successUrl, cancelUrl), parses JSON, validates non-empty session.url, and redirects with window.location.href. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/raffles/PurchaseSpotsPanel.tsx",
+          "operation": "create",
+          "description": "Create a purchase panel for raffle detail: quantity stepper/input, explicit price calculation (spot price × quantity), sold-out/remaining constraints, and a checkout button that triggers Stripe flow. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/PaymentSuccessPage.tsx",
+          "operation": "create",
+          "description": "Add a payment success page that reads Stripe session id from URL params (if present), checks payment status via backend capability, and guides the user back to the relevant raffle detail with a clear success state. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/PaymentFailurePage.tsx",
+          "operation": "create",
+          "description": "Add a payment failure page that shows a clear failure state and allows returning to the raffle detail page to retry. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/router.tsx",
+          "operation": "modify",
+          "description": "Register /payment-success and /payment-failure routes (as required by the Stripe component) and ensure navigation from those pages back to raffle detail is wired."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "modify",
+          "description": "Integrate PurchaseSpotsPanel into the raffle detail page; disable purchasing when remaining spots is 0 and show “Sold out.”"
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Admin-only dashboard to create/manage raffles, set schedules/spots/pot, open/close, configure Stripe, and trigger draw once.",
+      "acceptanceCriteria": [
+        "There is an admin-only area not accessible to non-admin users.",
+        "Admin can create a raffle with: title, description, spot price, total spots, pot/prize, start/end time.",
+        "Admin can mark a raffle active/closed and can trigger “Draw winner” exactly once per raffle.",
+        "After drawing, the raffle detail page publicly shows the winner and draw timestamp, and the admin cannot redraw."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/AdminGuard.tsx",
+          "operation": "create",
+          "description": "Implement an admin-only guard that queries backend role/admin status (isCallerAdmin/getCallerUserRole) and renders an access denied screen for non-admins. Verify the component's usage instructions before implementing (authorization component)."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "create",
+          "description": "Create the admin dashboard page as an admin-only area (wrapped by AdminGuard) with navigation to raffle management and Stripe setup. Verify the component's usage instructions before implementing (authorization + stripe components)."
+        },
+        {
+          "path": "frontend/src/pages/admin/RaffleManagementPage.tsx",
+          "operation": "create",
+          "description": "Implement admin raffle list + controls to create/update raffle config, change status open/closed/upcoming, and trigger draw (disabled if already drawn)."
+        },
+        {
+          "path": "frontend/src/components/admin/RaffleForm.tsx",
+          "operation": "create",
+          "description": "Create a raffle form for admin to set title/description, spot price, total spots, pot/prize, and draw timestamp; includes optional live video URL field (wiring to REQ-6)."
+        },
+        {
+          "path": "frontend/src/components/admin/StripePaymentSetup.tsx",
+          "operation": "create",
+          "description": "Implement Stripe configuration UI for admins using isStripeConfigured/setStripeConfiguration and only show setup if not configured, per Stripe component requirements. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/admin/useAdminRaffles.ts",
+          "operation": "create",
+          "description": "Add React Query hooks/mutations for admin capabilities: createRaffle/updateRaffle/changeStatus/triggerDraw, with cache invalidation for public raffle lists."
+        },
+        {
+          "path": "frontend/src/router.tsx",
+          "operation": "modify",
+          "description": "Wire admin routes under an /admin path and ensure they are guarded by AdminGuard (no direct access for non-admin users)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Per-raffle Live Drawing page with countdown, optional embedded live video URL, and refresh-based winner visibility after draw.",
+      "acceptanceCriteria": [
+        "Each raffle has a “Live Drawing” page/section with countdown based on the raffle schedule.",
+        "Admin can set or update an optional live video embed URL for a raffle.",
+        "Once a winner is drawn, the Live Drawing page shows the winner and draw time (at latest after refresh)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LiveDrawingPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Live Drawing page per raffle with countdown to draw time, optional embedded video URL (if provided), and winner display once drawn (updates on refresh/poll without persistent connections)."
+        },
+        {
+          "path": "frontend/src/components/raffles/CountdownTimer.tsx",
+          "operation": "create",
+          "description": "Add a countdown component that renders time remaining until draw time (based on backend-provided draw timestamp/timeToDraw) and updates on an interval client-side."
+        },
+        {
+          "path": "frontend/src/hooks/raffles/useLiveRaffle.ts",
+          "operation": "create",
+          "description": "Add a hook to fetch live raffle data (raffle + timeToDraw + entries summary) and optionally refetch on an interval to achieve real-time-like behavior without WebSockets."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "modify",
+          "description": "Add a prominent link/button from raffle detail to the Live Drawing page and show the configured video URL presence as part of the raffle info when available."
+        },
+        {
+          "path": "frontend/src/components/admin/RaffleForm.tsx",
+          "operation": "modify",
+          "description": "Wire the optional live video URL field into admin create/update flows so admins can set or update it (used by Live Drawing page)."
+        },
+        {
+          "path": "frontend/src/router.tsx",
+          "operation": "modify",
+          "description": "Register the Live Drawing route for a raffle and ensure it is reachable from the raffle detail page."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Transparency/audit info on completed raffles and consistent winner display across raffle detail, live drawing, and My Entries.",
+      "acceptanceCriteria": [
+        "Completed raffle pages display: spots sold, participant count, draw timestamp, and a draw reference ID.",
+        "The winner display is consistent between the raffle detail page and any user’s “My entries” view."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/raffles/RaffleAuditPanel.tsx",
+          "operation": "create",
+          "description": "Create a completed-raffle audit panel that shows spots sold, participant count, draw timestamp, and draw reference ID when available."
+        },
+        {
+          "path": "frontend/src/hooks/raffles/useCompletedRaffles.ts",
+          "operation": "create",
+          "description": "Add a hook for completed raffles summary (participants/spotsSold/drawTimestamp/winner) and provide mapping into detail/audit UI."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "modify",
+          "description": "Render RaffleAuditPanel for completed raffles and ensure the winner + draw timestamp + draw reference ID are shown consistently."
+        },
+        {
+          "path": "frontend/src/pages/LiveDrawingPage.tsx",
+          "operation": "modify",
+          "description": "Ensure winner and draw time display matches raffle detail display for drawn raffles (and appears after refresh/poll)."
+        },
+        {
+          "path": "frontend/src/pages/MyEntriesPage.tsx",
+          "operation": "modify",
+          "description": "Ensure each entry row references the same winner/outcome data as the raffle detail page for completed raffles (consistent winner display)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Apply a cohesive, warm-toned raffle event theme (no blue/purple primary) consistently across pages and responsive layouts.",
+      "acceptanceCriteria": [
+        "The UI has a consistent theme (color system, type scale, spacing) used across list/detail/admin/live pages.",
+        "Primary styling is not based on a blue/purple palette.",
+        "Pages are responsive and usable on mobile and desktop."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "create",
+          "description": "Create global styles and Tailwind CSS variable theme tokens emphasizing dark background with warm accents (e.g., amber/red/orange) and ensure primary is not blue/purple; include base typography and layout defaults."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Adjust theme extension (if needed) to support the warm accent palette and consistent app styling via CSS variables (no blue/purple primary)."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "create",
+          "description": "Create a shared layout wrapper (header + main container + footer) applied to all pages for consistent spacing and responsiveness."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteHeader.tsx",
+          "operation": "create",
+          "description": "Create a responsive header that includes the generated logo, primary navigation, and LoginButton."
+        },
+        {
+          "path": "frontend/src/pages/RafflesPage.tsx",
+          "operation": "modify",
+          "description": "Use the shared layout and consistent UI patterns (cards, badges, spacing) to match the global theme on the main landing page."
+        },
+        {
+          "path": "frontend/src/pages/RaffleDetailPage.tsx",
+          "operation": "modify",
+          "description": "Use the shared layout and consistent UI styling for detail sections (purchase, info, audit, navigation to live drawing)."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Use the shared layout and consistent UI styling within the admin area while keeping it clearly separated as admin-only."
+        },
+        {
+          "path": "frontend/src/pages/LiveDrawingPage.tsx",
+          "operation": "modify",
+          "description": "Apply consistent themed styling for countdown, video embed container, and winner/audit info; ensure mobile-friendly layout."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Add required generated logo and hero/banner images as static frontend assets and display them in the UI.",
+      "acceptanceCriteria": [
+        "Generated images are placed under frontend/public/assets/generated and referenced directly by the frontend.",
+        "The app displays the logo in the header and a hero/banner image on the main landing page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/raffle-logo.dim_512x512.png",
+          "operation": "create",
+          "description": "Add the generated raffle logo asset as a static file at the required path."
+        },
+        {
+          "path": "frontend/public/assets/generated/raffle-hero.dim_1600x600.png",
+          "operation": "create",
+          "description": "Add the generated hero banner asset as a static file at the required path."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteHeader.tsx",
+          "operation": "modify",
+          "description": "Reference and render the static logo image from frontend/public/assets/generated/raffle-logo.dim_512x512.png in the header (as a normal static asset reference)."
+        },
+        {
+          "path": "frontend/src/pages/RafflesPage.tsx",
+          "operation": "modify",
+          "description": "Reference and render the static hero/banner image from frontend/public/assets/generated/raffle-hero.dim_1600x600.png on the main landing page (no new top-level homepage beyond the required landing page)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-public-website-experience-for-hosting-drawing-style-raffles-with-multiple-raffle-types-a-weekday-raffles-where-users-can-buy-spots-for-10-each-with-prize-pot-amounts-in-the-100-500-range-and-b-a-weekend-big-raffle-that-supports-up-to-200-spots-and-a-500-pot-the-site-must-clearly-present-upcoming-active-and-completed-raffles-with-their-spot-price-total-spots-spots-remaining-start-end-times-and-current-status",
+      "featureTitle": "Create a public website experience for hosting drawing-style raffles with multiple raffle types: (a) weekday raffles where users can buy spots for $10 each with prize/pot amounts in the $100–$500 range, and (b) a weekend “big raffle” that supports up to 200 spots and a $500 pot. The site must clearly present upcoming, active, and completed raffles with their spot price, total spots, spots remaining, start/end times, and current status.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/raffles/RaffleCard.tsx",
+        "frontend/src/hooks/raffles/useRaffles.ts",
+        "frontend/src/hooks/raffles/useRemainingSpots.ts",
+        "frontend/src/pages/RaffleDetailPage.tsx",
+        "frontend/src/pages/RafflesPage.tsx",
+        "frontend/src/router.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-internet-identity-sign-in-so-users-can-participate-in-raffles-with-an-authenticated-identity-and-show-a-simple-user-area-where-a-signed-in-user-can-see-their-purchased-spots-entries-per-raffle-and-the-outcome-for-completed-raffles",
+      "featureTitle": "Implement Internet Identity sign-in so users can participate in raffles with an authenticated identity, and show a simple user area where a signed-in user can see their purchased spots/entries per raffle and the outcome for completed raffles.",
+      "files": [
+        "frontend/src/components/auth/LoginButton.tsx",
+        "frontend/src/components/auth/ProfileSetupDialog.tsx",
+        "frontend/src/components/auth/RequireAuth.tsx",
+        "frontend/src/hooks/auth/useUserProfile.ts",
+        "frontend/src/hooks/entries/useMyEntries.ts",
+        "frontend/src/pages/MyEntriesPage.tsx",
+        "frontend/src/pages/RaffleDetailPage.tsx",
+        "frontend/src/router.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-enable-paid-spot-purchasing-via-stripe-checkout-for-buying-raffle-spots-e-g-10-spot-and-only-count-spots-as-purchased-after-payment-is-confirmed-the-ui-must-make-pricing-explicit-spot-price-quantity-and-prevent-purchasing-more-spots-than-remain-available",
+      "featureTitle": "Enable paid spot purchasing via Stripe Checkout for buying raffle spots (e.g., $10/spot), and only count spots as “purchased” after payment is confirmed. The UI must make pricing explicit (spot price × quantity) and prevent purchasing more spots than remain available.",
+      "files": [
+        "frontend/src/components/raffles/PurchaseSpotsPanel.tsx",
+        "frontend/src/hooks/payments/useCreateCheckoutSession.ts",
+        "frontend/src/pages/PaymentFailurePage.tsx",
+        "frontend/src/pages/PaymentSuccessPage.tsx",
+        "frontend/src/pages/RaffleDetailPage.tsx",
+        "frontend/src/router.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-provide-an-admin-dashboard-admin-only-access-to-create-and-manage-raffles-weekday-and-weekend-set-schedules-set-total-spots-and-pot-prize-amount-open-close-raffles-and-trigger-the-drawing-admin-must-be-able-to-run-the-draw-once-per-raffle-which-selects-a-winner-from-the-purchased-entries-and-publishes-the-result-to-the-public-raffle-page",
+      "featureTitle": "Provide an admin dashboard (admin-only access) to create and manage raffles (weekday and weekend), set schedules, set total spots and pot/prize amount, open/close raffles, and trigger the drawing. Admin must be able to run the draw once per raffle, which selects a winner from the purchased entries and publishes the result to the public raffle page.",
+      "files": [
+        "frontend/src/components/admin/AdminGuard.tsx",
+        "frontend/src/components/admin/RaffleForm.tsx",
+        "frontend/src/components/admin/StripePaymentSetup.tsx",
+        "frontend/src/hooks/admin/useAdminRaffles.ts",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx",
+        "frontend/src/pages/admin/RaffleManagementPage.tsx",
+        "frontend/src/router.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-live-drawing-experience-for-each-raffle-that-supports-hosting-live-drawings-by-a-a-dedicated-live-drawing-page-per-raffle-with-a-countdown-to-the-scheduled-draw-time-b-an-optional-embed-field-for-a-live-video-url-e-g-youtube-live-configured-by-admin-and-c-a-real-time-like-update-on-refresh-that-shows-the-winner-once-the-draw-is-finalized",
+      "featureTitle": "Add a “Live Drawing” experience for each raffle that supports hosting live drawings by: (a) a dedicated live drawing page per raffle with a countdown to the scheduled draw time, (b) an optional embed field for a live video URL (e.g., YouTube Live) configured by admin, and (c) a real-time-like update on refresh that shows the winner once the draw is finalized.",
+      "files": [
+        "frontend/src/components/admin/RaffleForm.tsx",
+        "frontend/src/components/raffles/CountdownTimer.tsx",
+        "frontend/src/hooks/raffles/useLiveRaffle.ts",
+        "frontend/src/pages/LiveDrawingPage.tsx",
+        "frontend/src/pages/RaffleDetailPage.tsx",
+        "frontend/src/router.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-transparency-audit-information-on-completed-raffles-show-total-spots-sold-number-of-participants-and-a-non-technical-but-verifiable-draw-record-e-g-draw-timestamp-and-a-draw-reference-id-on-the-completed-raffle-page",
+      "featureTitle": "Add transparency/audit information on completed raffles: show total spots sold, number of participants, and a non-technical but verifiable draw record (e.g., draw timestamp and a draw reference ID) on the completed raffle page.",
+      "files": [
+        "frontend/src/components/raffles/RaffleAuditPanel.tsx",
+        "frontend/src/hooks/raffles/useCompletedRaffles.ts",
+        "frontend/src/pages/LiveDrawingPage.tsx",
+        "frontend/src/pages/MyEntriesPage.tsx",
+        "frontend/src/pages/RaffleDetailPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-establish-a-cohesive-visual-theme-for-the-app-and-apply-it-consistently-across-pages-layout-typography-colors-components-use-a-distinct-style-suitable-for-raffle-drawing-events-and-avoid-a-blue-purple-primary-palette",
+      "featureTitle": "Establish a cohesive visual theme for the app and apply it consistently across pages (layout, typography, colors, components). Use a distinct style suitable for raffle/drawing events and avoid a blue/purple primary palette.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/SiteHeader.tsx",
+        "frontend/src/index.css",
+        "frontend/src/pages/LiveDrawingPage.tsx",
+        "frontend/src/pages/RaffleDetailPage.tsx",
+        "frontend/src/pages/RafflesPage.tsx",
+        "frontend/src/pages/admin/AdminDashboardPage.tsx",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-required-static-generated-images-to-support-the-theme-logo-and-hero-banner-and-use-them-in-the-ui-as-static-assets-served-from-the-frontend-not-through-the-backend",
+      "featureTitle": "Add required static generated images to support the theme (logo and hero/banner) and use them in the UI as static assets served from the frontend (not through the backend).",
+      "files": [
+        "frontend/src/components/layout/SiteHeader.tsx",
+        "frontend/src/pages/RafflesPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

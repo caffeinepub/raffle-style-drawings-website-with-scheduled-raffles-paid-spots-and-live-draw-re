@@ -1,0 +1,199 @@
+{
+  "kind": "build_request",
+  "title": "Raffle-style drawings website with scheduled raffles, paid spots, and live draw results",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create a public website experience for hosting drawing-style raffles with multiple raffle types: (a) weekday raffles where users can buy spots for $10 each with prize/pot amounts in the $100–$500 range, and (b) a weekend “big raffle” that supports up to 200 spots and a $500 pot. The site must clearly present upcoming, active, and completed raffles with their spot price, total spots, spots remaining, start/end times, and current status.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "want to create a page for hosting drawing like raffles 10$  a spot drawings ranging from 100$-500$ weekday raffles building up to the 200 spot 500$ pot big raffle on the weekend and host live drawings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can browse a list of raffles segmented by status (upcoming/active/completed).",
+        "Each raffle shows: spot price, total spots, spots remaining, pot/prize amount, schedule (date/time), and a clear status label.",
+        "Weekday raffle configuration supports $10/spot and pot/prize amounts between $100 and $500.",
+        "Weekend raffle configuration supports up to 200 spots and $500 pot."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement Internet Identity sign-in so users can participate in raffles with an authenticated identity, and show a simple user area where a signed-in user can see their purchased spots/entries per raffle and the outcome for completed raffles.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "want to create a page for hosting drawing like raffles... and host live drawings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can sign in and sign out using Internet Identity.",
+        "Signed-in users can view a list of their entries (raffle, quantity of spots, timestamp, status).",
+        "If not signed in, entry purchase actions prompt sign-in."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add backend data models and persistence for raffles and entries, including: raffle configuration (title, description, spot price, total spots, pot/prize amount, schedule timestamps, status), purchased entries (buyer principal, quantity, spot identifiers or counts, timestamps), and finalized results (winner, draw timestamp, audit metadata).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "weekday raffles building up to the 200 spot 500$ pot big raffle on the weekend"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes methods to list raffles, get raffle details, create/update raffles (admin-only), record entries, and fetch results.",
+        "Raffle and entry data persists across canister upgrades using stable storage patterns.",
+        "A completed raffle stores an immutable winner record and draw timestamp."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Enable paid spot purchasing via Stripe Checkout for buying raffle spots (e.g., $10/spot), and only count spots as “purchased” after payment is confirmed. The UI must make pricing explicit (spot price × quantity) and prevent purchasing more spots than remain available.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "raffles 10$  a spot"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can select a quantity of spots to buy for an active raffle, up to the remaining spots.",
+        "Checkout flow completes via Stripe and returns the user to the raffle detail page with a clear success/failure state.",
+        "Backend only increments sold spots / records entries when the payment confirmation is received/validated.",
+        "If a raffle sells out, purchasing is disabled and the UI shows “Sold out.”"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Provide an admin dashboard (admin-only access) to create and manage raffles (weekday and weekend), set schedules, set total spots and pot/prize amount, open/close raffles, and trigger the drawing. Admin must be able to run the draw once per raffle, which selects a winner from the purchased entries and publishes the result to the public raffle page.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "host live drawings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "There is an admin-only area not accessible to non-admin users.",
+        "Admin can create a raffle with: title, description, spot price, total spots, pot/prize, start/end time.",
+        "Admin can mark a raffle active/closed and can trigger “Draw winner” exactly once per raffle.",
+        "After drawing, the raffle detail page publicly shows the winner and draw timestamp, and the admin cannot redraw."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a “Live Drawing” experience for each raffle that supports hosting live drawings by: (a) a dedicated live drawing page per raffle with a countdown to the scheduled draw time, (b) an optional embed field for a live video URL (e.g., YouTube Live) configured by admin, and (c) a real-time-like update on refresh that shows the winner once the draw is finalized.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "host live drawings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each raffle has a “Live Drawing” page/section with countdown based on the raffle schedule.",
+        "Admin can set or update an optional live video embed URL for a raffle.",
+        "Once a winner is drawn, the Live Drawing page shows the winner and draw time (at latest after refresh)."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add transparency/audit information on completed raffles: show total spots sold, number of participants, and a non-technical but verifiable draw record (e.g., draw timestamp and a draw reference ID) on the completed raffle page.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "host live drawings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Completed raffle pages display: spots sold, participant count, draw timestamp, and a draw reference ID.",
+        "The winner display is consistent between the raffle detail page and any user’s “My entries” view."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Establish a cohesive visual theme for the app and apply it consistently across pages (layout, typography, colors, components). Use a distinct style suitable for raffle/drawing events and avoid a blue/purple primary palette.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "want to create a page for hosting drawing like raffles..."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The UI has a consistent theme (color system, type scale, spacing) used across list/detail/admin/live pages.",
+        "Primary styling is not based on a blue/purple palette.",
+        "Pages are responsive and usable on mobile and desktop."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Add required static generated images to support the theme (logo and hero/banner) and use them in the UI as static assets served from the frontend (not through the backend).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "want to create a page for hosting drawing like raffles..."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Generated images are placed under frontend/public/assets/generated and referenced directly by the frontend.",
+        "The app displays the logo in the header and a hero/banner image on the main landing page."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
+    "Do not modify files under frontend/src/components/ui (compose them only).",
+    "Do not edit immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "No WebSockets or real-time chat; live drawing updates must work without persistent realtime connections."
+  ],
+  "nonGoals": [
+    "Creating or managing a Facebook Page on the user’s behalf.",
+    "Integrating third-party authentication providers other than Internet Identity.",
+    "Building true real-time streaming infrastructure; the app may embed existing live video URLs but will not host video streaming itself.",
+    "Providing legal licensing/compliance guarantees for paid raffles/lotteries."
+  ],
+  "imageRequirements": {
+    "required": [
+      "Event-style raffle logo with a bold ticket/raffle motif, dark background, warm accent colors (raffle-logo.dim_512x512.png)",
+      "Wide hero banner showing raffle tickets and a drawing drum/balls aesthetic, high contrast, warm accents (raffle-hero.dim_1600x600.png)"
+    ],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}
